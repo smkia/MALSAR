@@ -70,28 +70,25 @@ dimension = size(X{1}, 1);
 funcVal = [];
 
 XY = cell(task_num, 1);
-W0_prep = [];
 for t_idx = 1: task_num
     XY{t_idx} = X{t_idx}*Y{t_idx};
-    W0_prep = cat(2, W0_prep, XY{t_idx});
 end
 
 % initialize a starting point
-if opts.init==2
+if isfield(opts,'W0')
+    W0=opts.W0;
+    if (nnz(size(W0)-[dimension, task_num]))
+        error('\n Check the input .W0');
+    end
+elseif opts.init==2
     W0 = zeros(dimension, task_num);
 elseif opts.init == 0
-    W0 = W0_prep;
-else
-    if isfield(opts,'W0')
-        W0=opts.W0;
-        if (nnz(size(W0)-[dimension, task_num]))
-            error('\n Check the input .W0');
-        end
-    else
-        W0=W0_prep;
+    W0_prep = [];
+    for t_idx = 1: task_num
+        W0_prep = cat(2, W0_prep, XY{t_idx});
     end
+    W0 = W0_prep;
 end
-
 
 bFlag=0; % this flag tests whether the gradient step only changes a little
 
